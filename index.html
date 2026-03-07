@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DANGANRONPA EXPLAINED</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@400;500&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red:    #e8003d;
+  --red2:   #ff3d5c;
+  --white:  #f5f0e8;
+  --black:  #080808;
+  --grey:   #131313;
+  --dim:    #1e1e1e;
+  --dim2:   #272727;
+  --body-c: rgba(245,240,232,0.90);
+  --muted:  rgba(245,240,232,0.58);
+  --dimmed: rgba(245,240,232,0.28);
+  --display:'Black Han Sans', sans-serif;
+  --prose:  'Lora', serif;
+  --mono:   'DM Mono', monospace;
+  /* layout */
+  --sw: 320px;
+  --cfs: 13.5px;
+  --sp: 0 40px;
+  --np: 13px 40px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; width: 100%; overflow: hidden; background: var(--black); color: var(--white); font-family: var(--prose); }
+
+/* ─── OVERLAYS ─── */
+.ov-scan {
+  position: fixed; inset: 0; pointer-events: none; z-index: 600;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
+}
+.ov-noise {
+  position: fixed; inset: 0; pointer-events: none; z-index: 599; opacity: 0.45;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+}
+
+/* ─── CURSOR ─── */
+body { cursor: auto; }
+body.mode-desktop { cursor: none; }
+#cursor {
+  position: fixed; width: 22px; height: 22px;
+  border: 2px solid var(--red); border-radius: 50%;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: transform 0.1s, border-color 0.15s, box-shadow 0.15s;
+  display: none; mix-blend-mode: difference;
+}
+body.mode-desktop #cursor { display: block; }
+#cursor.clicked { transform: translate(-50%,-50%) scale(0.45); border-color: var(--white); box-shadow: 0 0 10px rgba(232,0,61,0.6); }
+
+/* ══════════════════════════════════
+   TITLE SCREEN
+══════════════════════════════════ */
+#ts {
+  position: fixed; inset: 0; background: var(--black);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 200; transition: opacity 0.8s; padding: 24px; text-align: center; overflow: hidden;
+}
+/* diagonal hatch */
+#ts::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    repeating-linear-gradient(45deg,  transparent, transparent 30px, rgba(232,0,61,0.022) 30px, rgba(232,0,61,0.022) 31px),
+    repeating-linear-gradient(-45deg, transparent, transparent 30px, rgba(232,0,61,0.022) 30px, rgba(232,0,61,0.022) 31px);
+}
+/* blood drip */
+#ts::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 110px; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(232,0,61,0.22), transparent);
+}
+.ts-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.5em; color: var(--red); text-transform: uppercase; margin-bottom: 20px; animation: blink 2s infinite; position: relative; z-index: 1; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* monokuma */
+.mk-wrap { position: relative; z-index: 1; margin-bottom: 24px; animation: bob 3s ease-in-out infinite; }
+@keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+.mk-wrap svg { filter: drop-shadow(0 0 22px rgba(232,0,61,0.38)); }
+
+.ts-main {
+  font-family: var(--display); font-size: clamp(44px,9vw,96px); color: var(--white);
+  line-height: 0.9; letter-spacing: -2px; position: relative; z-index: 1;
+}
+.ts-main .r { color: var(--red); }
+.ts-main::after {
+  content: attr(data-text); position: absolute; inset: 0;
+  color: var(--red); opacity: 0.75; animation: glitch 5s infinite;
+}
+@keyframes glitch {
+  0%,89%,100%{clip-path:inset(100% 0 0 0);transform:none}
+  90%{clip-path:inset(18% 0 67% 0);transform:translate(-5px,0)}
+  91%{clip-path:inset(52% 0 30% 0);transform:translate(5px,0)}
+  92%{clip-path:inset(72% 0 12% 0);transform:translate(-2px,0)}
+  93%{clip-path:inset(100% 0 0 0);transform:none}
+}
+.ts-sub { font-family: var(--mono); font-size: 12px; letter-spacing: 0.35em; color: var(--muted); text-transform: uppercase; margin-top: 20px; position: relative; z-index: 1; }
+.ts-btn {
+  margin-top: 44px; padding: 14px 52px; background: var(--red); color: var(--white);
+  font-family: var(--mono); font-weight: 500; font-size: 13px; letter-spacing: 0.35em;
+  text-transform: uppercase; border: none; cursor: pointer;
+  position: relative; overflow: hidden; transition: transform 0.2s;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  z-index: 1;
+}
+.ts-btn::before { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.18); transform: translateX(-100%); transition: transform 0.3s; }
+.ts-btn:hover::before { transform: translateX(0); }
+.ts-btn:hover { transform: scale(1.05); box-shadow: 0 0 28px rgba(232,0,61,0.4); }
+.ts-count { margin-top: 22px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em; color: var(--dimmed); position: relative; z-index: 1; }
+
+/* ══════════════════════════════════
+   DEVICE SCREEN
+══════════════════════════════════ */
+#ds {
+  position: fixed; inset: 0; background: var(--black);
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 190; padding: 24px; text-align: center; transition: opacity 0.5s; overflow: hidden;
+}
+#ds::before { /* same hatch */
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(45deg,transparent,transparent 30px,rgba(232,0,61,0.018) 30px,rgba(232,0,61,0.018) 31px),
+    repeating-linear-gradient(-45deg,transparent,transparent 30px,rgba(232,0,61,0.018) 30px,rgba(232,0,61,0.018) 31px);
+}
+.ds-ey { font-family: var(--mono); font-size: 10px; letter-spacing: 0.5em; color: var(--red); margin-bottom: 12px; animation: blink 2.5s infinite; position: relative; z-index: 1; }
+.ds-ttl { font-family: var(--display); font-size: clamp(22px,4vw,42px); color: var(--white); margin-bottom: 6px; position: relative; z-index: 1; }
+.ds-ttl .r { color: var(--red); }
+.ds-sub { font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em; color: var(--muted); text-transform: uppercase; margin-bottom: 36px; position: relative; z-index: 1; }
+
+.ds-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; max-width: 700px; width: 100%; margin-bottom: 28px; position: relative; z-index: 1; }
+@media(max-width:580px){ .ds-grid{ grid-template-columns:1fr; max-width:290px; gap:10px; } }
+
+.ds-card {
+  border: 1px solid rgba(232,0,61,0.18); background: rgba(18,18,18,0.9);
+  padding: 28px 16px 22px; cursor: pointer; transition: all 0.25s; position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 11px;
+  -webkit-tap-highlight-color: transparent;
+  clip-path: polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+}
+.ds-card:hover,.ds-card.sel { border-color: var(--red); background: rgba(232,0,61,0.09); box-shadow: 0 0 20px rgba(232,0,61,0.13); }
+.ds-card.sel::after { content:'✓'; position:absolute; top:9px; right:12px; font-family:var(--mono); font-size:15px; color:var(--red); }
+.ds-ico { font-size: 32px; line-height: 1; }
+.ds-ct { font-family: var(--display); font-size: 16px; color: var(--white); }
+.ds-cs { font-family: var(--mono); font-size: 10px; color: var(--muted); line-height: 1.65; text-align: center; }
+.ds-tag { font-family: var(--mono); font-size: 9px; letter-spacing: 0.3em; color: var(--red); border: 1px solid rgba(232,0,61,0.3); padding: 3px 10px; text-transform: uppercase; margin-top: 4px; }
+
+.ds-ok {
+  padding: 14px 50px; background: var(--red); border: none; color: var(--white);
+  font-family: var(--mono); font-size: 14px; letter-spacing: 0.38em; cursor: pointer;
+  transition: all 0.25s; opacity: 0.28; pointer-events: none; position: relative; z-index: 1;
+  clip-path: polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+}
+.ds-ok.ready { opacity: 1; pointer-events: all; }
+.ds-ok.ready:hover { background: var(--red2); transform: scale(1.04); box-shadow: 0 0 22px rgba(232,0,61,0.4); }
+.ds-note { margin-top: 14px; font-family: var(--mono); font-size: 10px; color: var(--dimmed); letter-spacing: 0.15em; position: relative; z-index: 1; }
+
+/* ══════════════════════════════════
+   DEVICE OVERLAY
+══════════════════════════════════ */
+#dov {
+  position: fixed; inset: 0; background: rgba(8,8,8,0.97);
+  z-index: 300; display: none; flex-direction: column;
+  align-items: center; justify-content: center; padding: 24px; text-align: center;
+}
+#dov::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(45deg,transparent,transparent 30px,rgba(232,0,61,0.018) 30px,rgba(232,0,61,0.018) 31px),
+    repeating-linear-gradient(-45deg,transparent,transparent 30px,rgba(232,0,61,0.018) 30px,rgba(232,0,61,0.018) 31px);
+}
+
+/* ══════════════════════════════════
+   MAIN APP
+══════════════════════════════════ */
+#app { display: none; height: 100%; flex-direction: column; position: relative; }
+
+/* progress bar */
+.prog-t { height: 3px; background: rgba(232,0,61,0.08); flex-shrink: 0; }
+.prog-f { height: 100%; background: linear-gradient(to right, var(--red), var(--red2)); transition: width 0.4s ease; }
+
+/* topbar */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 24px; border-bottom: 1px solid rgba(232,0,61,0.18);
+  background: rgba(8,8,8,0.97); backdrop-filter: blur(10px); flex-shrink: 0; z-index: 10;
+}
+.tb-ttl { font-family: var(--display); font-size: 18px; letter-spacing: 1px; color: var(--white); }
+.tb-ttl span { color: var(--red); }
+.tb-r { display: flex; align-items: center; gap: 12px; }
+.dots-r { display: flex; gap: 6px; align-items: center; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dim2); transition: all 0.3s; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.dot.active { background: var(--red); transform: scale(1.45); animation: dp 2s infinite; }
+.dot.done { background: rgba(232,0,61,0.38); }
+@keyframes dp { 0%,100%{box-shadow:0 0 0 0 rgba(232,0,61,0.5)} 50%{box-shadow:0 0 0 4px rgba(232,0,61,0)} }
+.prog-lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.3em; color: rgba(245,240,232,0.38); text-transform: uppercase; }
+.dev-tog {
+  padding: 4px 10px; background: transparent;
+  border: 1px solid rgba(232,0,61,0.2); color: var(--muted);
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.26em;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.dev-tog:hover { border-color: var(--red); color: var(--red2); }
+body.mode-desktop .dev-tog { display: none; }
+
+/* content */
+.ca { flex: 1; overflow: hidden; position: relative; }
+
+/* ── SLIDES ── */
+.slide {
+  position: absolute; inset: 0;
+  display: flex; padding: var(--sp); gap: 40px; align-items: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.5s;
+}
+.slide.active { opacity: 1; pointer-events: all; }
+.slide.active .lp { animation: slL 0.48s ease forwards; }
+.slide.active .rp { animation: slR 0.48s ease 0.05s both; }
+@keyframes slL { from{transform:translateX(-38px);opacity:0} to{transform:translateX(0);opacity:1} }
+@keyframes slR { from{transform:translateX(38px);opacity:0} to{transform:translateX(0);opacity:1} }
+
+/* left panel */
+.lp { flex: 0 0 var(--sw); display: flex; flex-direction: column; gap: 18px; }
+
+.game-badge {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 6px 16px; border: 1px solid var(--red); background: rgba(232,0,61,0.09);
+  clip-path: polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%); width: fit-content;
+}
+.gbn { font-family: var(--display); font-size: 22px; color: var(--red); line-height: 1; }
+.gbt { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); line-height: 1.4; }
+
+.sh { font-family: var(--display); font-size: clamp(26px,3.2vw,44px); line-height: 1.05; color: var(--white); }
+.sh .hl { color: var(--red); }
+.sm { font-family: var(--mono); font-size: 10px; letter-spacing: 0.26em; color: rgba(245,240,232,0.35); text-transform: uppercase; padding-top: 5px; border-top: 1px solid rgba(245,240,232,0.08); }
+
+/* character tags */
+.cg { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+.ct { padding: 4px 9px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; border: 1px solid rgba(245,240,232,0.09); color: var(--muted); background: rgba(245,240,232,0.02); white-space: nowrap; transition: all 0.2s; }
+.ct.culprit { border-color: rgba(232,0,61,0.42); color: var(--red2); background: rgba(232,0,61,0.07); }
+.ct.victim { border-color: rgba(100,100,100,0.35); color: rgba(245,240,232,0.3); text-decoration: line-through; text-decoration-color: rgba(232,0,61,0.5); }
+.ct.survivor { border-color: rgba(245,240,232,0.28); color: var(--white); }
+.ct.executed { border-color: rgba(232,0,61,0.25); color: rgba(232,0,61,0.65); text-decoration: line-through; text-decoration-color: var(--red); }
+
+/* right panel */
+.rp { flex: 1; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+.ns { overflow-y: auto; flex: 1; padding: 22px 8px 22px 0; scrollbar-width: thin; scrollbar-color: var(--red) transparent; }
+.ns::-webkit-scrollbar { width: 3px; }
+.ns::-webkit-scrollbar-thumb { background: var(--red); border-radius: 2px; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--grey); border: 1px solid rgba(245,240,232,0.06);
+  border-left: 3px solid transparent; padding: 16px 20px;
+  transition: all 0.25s; margin-bottom: 9px;
+}
+.card:hover { border-left-color: var(--red); background: var(--dim); }
+.card.murder { border-color: rgba(232,0,61,0.15); background: rgba(232,0,61,0.04); }
+.card.murder:hover { border-left-color: var(--red); }
+.card.reveal { border-color: rgba(255,235,80,0.09); background: rgba(255,235,80,0.02); }
+.card.reveal .ct-lbl { color: #d4c56a; }
+.card.verdict { border-top: 2px solid var(--red); border-left: 3px solid var(--red); background: rgba(232,0,61,0.06); }
+
+.ct-lbl { font-family: var(--mono); font-size: 9px; letter-spacing: 0.38em; text-transform: uppercase; color: var(--red); margin-bottom: 9px; display: flex; align-items: center; gap: 8px; }
+.ct-lbl::before { content: ''; width: 20px; height: 1px; background: currentColor; flex-shrink: 0; }
+
+.card-text { font-family: var(--prose); font-size: var(--cfs); line-height: 1.85; color: var(--body-c); }
+.card-text strong { color: var(--white); font-weight: 600; }
+.card-text .r { color: var(--red2); font-weight: 600; }
+
+/* ── MURDER LOG ── */
+.ml { background: rgba(0,0,0,0.7); border: 1px solid rgba(232,0,61,0.2); padding: 16px 18px; margin-bottom: 9px; }
+.ml-title { font-family: var(--mono); font-size: 9px; letter-spacing: 0.42em; text-transform: uppercase; color: var(--red); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(232,0,61,0.18); }
+.me { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid rgba(245,240,232,0.04); }
+.me:last-child { border-bottom: none; }
+.me-note { grid-column: 1/-1; font-family: var(--mono); font-size: 10px; color: rgba(245,240,232,0.28); padding-bottom: 3px; padding-left: 1px; }
+.vn { font-family: var(--mono); font-size: 11px; color: rgba(245,240,232,0.68); text-decoration: line-through; text-decoration-color: rgba(232,0,61,0.5); }
+.kn { font-family: var(--mono); font-size: 11px; color: var(--red2); text-align: right; }
+.arr { color: rgba(232,0,61,0.45); font-size: 11px; text-align: center; }
+
+/* twist banner */
+.twist { background: var(--red); color: var(--white); text-align: center; padding: 9px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.42em; text-transform: uppercase; font-weight: 500; animation: blink 1.5s infinite; margin-bottom: 9px; }
+
+/* ── BOTTOM NAV ── */
+.bnav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--np); border-top: 1px solid rgba(232,0,61,0.14);
+  flex-shrink: 0; background: rgba(8,8,8,0.95);
+}
+.nb {
+  display: flex; align-items: center; gap: 9px; padding: 10px 24px;
+  background: transparent; border: 1px solid rgba(245,240,232,0.1);
+  color: var(--muted); font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em;
+  text-transform: uppercase; cursor: pointer; transition: all 0.25s;
+  clip-path: polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+  -webkit-tap-highlight-color: transparent;
+}
+.nb:hover:not(:disabled) { border-color: var(--red); color: var(--white); background: rgba(232,0,61,0.08); }
+.nb:disabled { opacity: 0.18; }
+.nb.prim { background: var(--red); border-color: var(--red); color: var(--white); font-weight: 500; }
+.nb.prim:hover { background: var(--red2); border-color: var(--red2); box-shadow: 0 0 16px rgba(232,0,61,0.35); }
+.sc { font-family: var(--mono); font-size: 11px; letter-spacing: 0.3em; color: rgba(245,240,232,0.35); text-align: center; line-height: 1.5; }
+.sc span { color: var(--red); }
+.sw-hint { font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; color: var(--dimmed); display: none; margin-top: 3px; }
+
+/* ══════════════════════════════════
+   TABLET MODE
+══════════════════════════════════ */
+body.mode-tablet {
+  --sw: 258px; --cfs: 14px; --sp: 0 22px; --np: 13px 22px;
+}
+body.mode-tablet .slide { gap: 22px; }
+body.mode-tablet .sh { font-size: clamp(22px,3vw,34px); }
+body.mode-tablet .card { padding: 14px 17px; }
+body.mode-tablet .card-text { font-size: 14px; line-height: 1.88; }
+body.mode-tablet .topbar { padding: 11px 18px; }
+body.mode-tablet .tb-ttl { font-size: 16px; }
+body.mode-tablet .nb { padding: 12px 18px; font-size: 12px; }
+body.mode-tablet .sw-hint { display: block; }
+
+/* ══════════════════════════════════
+   PHONE MODE
+══════════════════════════════════ */
+body.mode-phone {
+  --sw: 100%; --cfs: 14.5px; --sp: 0; --np: 11px 14px;
+}
+body.mode-phone .slide { flex-direction: column; gap: 0; align-items: stretch; }
+body.mode-phone .lp { flex: none; width: 100%; max-height: 44vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 16px 12px; border-bottom: 1px solid rgba(232,0,61,0.16); }
+body.mode-phone .rp { flex: 1; overflow: hidden; }
+body.mode-phone .ns { padding: 14px 12px 20px; }
+body.mode-phone .sh { font-size: clamp(22px,6vw,32px); }
+body.mode-phone .sm { font-size: 9px; }
+body.mode-phone .card { padding: 13px 14px; }
+body.mode-phone .card-text { font-size: 15px; line-height: 1.82; }
+body.mode-phone .topbar { padding: 10px 14px; }
+body.mode-phone .tb-ttl { font-size: 15px; }
+body.mode-phone .dots-r { display: none; }
+body.mode-phone .prog-lbl { display: none; }
+body.mode-phone .nb { padding: 12px 14px; font-size: 12px; }
+body.mode-phone .nb .lb { display: none; }
+body.mode-phone .sw-hint { display: block; }
+body.mode-phone .me { grid-template-columns: 1fr auto 1fr; gap: 5px; }
+body.mode-phone .vn,.body.mode-phone .kn { font-size: 10px; }
+body.mode-phone .cg { max-height: 78px; overflow-y: auto; }
+</style>
+</head>
+<body>
+<div class="ov-scan"></div>
+<div class="ov-noise"></div>
+<div id="cursor"></div>
+
+<!-- ══ TITLE SCREEN ══ -->
+<div id="ts">
+  <div class="mk-wrap">
+    <svg width="82" height="82" viewBox="0 0 80 80" fill="none">
+      <circle cx="40" cy="40" r="36" fill="#f5f0e8" stroke="#080808" stroke-width="2"/>
+      <path d="M40 4 A36 36 0 0 0 40 76 Z" fill="#0a0a0a"/>
+      <circle cx="28" cy="32" r="9" fill="white"/><circle cx="28" cy="33" r="5" fill="#0a0a0a"/><circle cx="26" cy="31" r="1.5" fill="white"/>
+      <circle cx="52" cy="32" r="9" fill="#e8003d"/><circle cx="52" cy="33" r="5" fill="#0a0a0a"/><circle cx="50" cy="31" r="1.5" fill="white"/>
+      <circle cx="40" cy="42" r="3" fill="#0a0a0a"/>
+      <path d="M28 52 Q40 65 52 52" stroke="#0a0a0a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="12" cy="24" rx="6" ry="10" fill="#f5f0e8" stroke="#0a0a0a" stroke-width="2"/>
+      <ellipse cx="68" cy="24" rx="6" ry="10" fill="#f5f0e8" stroke="#0a0a0a" stroke-width="2"/>
+      <ellipse cx="12" cy="24" rx="3" ry="6" fill="#0a0a0a"/>
+      <ellipse cx="68" cy="24" rx="3" ry="6" fill="#0a0a0a"/>
+    </svg>
+  </div>
+  <div class="ts-label">▸ NOW PLAYING</div>
+  <div class="ts-main" data-text="DANGANRONPA">DANGAN<span class="r">RONPA</span></div>
+  <div class="ts-sub">explained — all three games</div>
+  <button class="ts-btn" onclick="goToDev()">▶ BEGIN EXPLANATION</button>
+  <div class="ts-count">3 GAMES · 14 MURDERS · 1 MASTERMIND</div>
+</div>
+
+<!-- ══ DEVICE SCREEN ══ -->
+<div id="ds">
+  <div class="ds-ey">SYSTEM READY — SELECT INPUT DEVICE</div>
+  <div class="ds-ttl">Choose Your <span class="r">Device</span></div>
+  <div class="ds-sub">Optimises layout &amp; navigation for your screen</div>
+  <div class="ds-grid">
+    <div class="ds-card" data-mode="desktop" onclick="pickDev(this)">
+      <div class="ds-ico">🖥️</div><div class="ds-ct">DESKTOP</div>
+      <div class="ds-cs">PC, iMac<br>or Laptop</div><div class="ds-tag">Full Layout</div>
+    </div>
+    <div class="ds-card" data-mode="tablet" onclick="pickDev(this)">
+      <div class="ds-ico">📱</div><div class="ds-ct">TABLET</div>
+      <div class="ds-cs">iPad, Galaxy Tab<br>or any tablet</div><div class="ds-tag">Touch Optimised</div>
+    </div>
+    <div class="ds-card" data-mode="phone" onclick="pickDev(this)">
+      <div class="ds-ico">📲</div><div class="ds-ct">PHONE</div>
+      <div class="ds-cs">iPhone, Android<br>or small screen</div><div class="ds-tag">Stacked + Swipe</div>
+    </div>
+  </div>
+  <button class="ds-ok" id="ds-ok" onclick="confirmDev()">▶ OPEN FILE</button>
+  <div class="ds-note" id="ds-auto"></div>
+</div>
+
+<!-- ══ DEVICE OVERLAY ══ -->
+<div id="dov">
+  <div class="ds-ey">SWITCH LAYOUT</div>
+  <div class="ds-ttl">Change <span class="r">Device View</span></div>
+  <div class="ds-sub">Pick a different layout mode</div>
+  <div class="ds-grid" style="max-width:620px;position:relative;z-index:1">
+    <div class="ds-card" data-mode="desktop" onclick="pickDev(this,true)"><div class="ds-ico">🖥️</div><div class="ds-ct">DESKTOP</div><div class="ds-cs">PC / Laptop</div></div>
+    <div class="ds-card" data-mode="tablet" onclick="pickDev(this,true)"><div class="ds-ico">📱</div><div class="ds-ct">TABLET</div><div class="ds-cs">iPad / Tab</div></div>
+    <div class="ds-card" data-mode="phone" onclick="pickDev(this,true)"><div class="ds-ico">📲</div><div class="ds-ct">PHONE</div><div class="ds-cs">iPhone / Android</div></div>
+  </div>
+  <div style="display:flex;gap:12px;margin-top:4px;position:relative;z-index:1">
+    <button class="ds-ok" id="dov-ok" style="opacity:.28;pointer-events:none" onclick="applyOv()">▶ APPLY</button>
+    <button style="padding:13px 26px;background:transparent;border:1px solid rgba(245,240,232,0.1);color:var(--muted);font-family:var(--mono);font-size:12px;letter-spacing:0.3em;cursor:pointer;transition:all 0.2s;clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%)" onmouseover="this.style.borderColor='rgba(232,0,61,0.5)';this.style.color='var(--red2)'" onmouseout="this.style.borderColor='rgba(245,240,232,0.1)';this.style.color='var(--muted)'" onclick="closeOv()">CANCEL</button>
+  </div>
+</div>
+
+<!-- ══ MAIN APP ══ -->
+<div id="app">
+  <div class="prog-t"><div class="prog-f" id="prog"></div></div>
+  <div class="topbar">
+    <div class="tb-ttl">DANGAN<span>RONPA</span> EXPLAINED</div>
+    <div class="tb-r">
+      <div class="dots-r" id="dots"></div>
+      <div class="prog-lbl" id="prog-lbl">INTRO</div>
+      <button class="dev-tog" onclick="openOv()">⚙ DEVICE</button>
+    </div>
+  </div>
+  <div class="ca" id="sc"></div>
+  <div class="bnav">
+    <button class="nb" id="prev-btn" onclick="nav(-1)" disabled>◀ <span class="lb">PREV</span></button>
+    <div class="sc">SLIDE <span id="cur-n">1</span> / <span id="tot-n">1</span><div class="sw-hint">← swipe →</div></div>
+    <button class="nb prim" id="next-btn" onclick="nav(1)"><span class="lb">NEXT </span>▶</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+//  SLIDES — all facts corrected per summaries
+// ═══════════════════════════════════════
+const SLIDES = [
+
+// ── 0  INTRO ──
+{ lbl:"INTRO", game:null,
+left:`<div class="sh">What is<br><span class="hl">Danganronpa?</span></div>
+<div class="sm">VISUAL NOVEL · MYSTERY · DESPAIR</div>`,
+right:`
+<div class="card"><div class="ct-lbl">premise</div><div class="card-text">
+<strong>Danganronpa</strong> is a series of murder-mystery visual novels by Spike Chunsoft. Each game traps a group of <span class="r">"Ultimate"</span> high-school students — the best in the world at a single skill — in a killing game run by a sadistic robotic bear named <strong>Monokuma</strong>.
+</div></div>
+<div class="card"><div class="ct-lbl">the rules</div><div class="card-text">
+To escape, a student must <strong>murder a classmate and get away with it</strong> in a class trial. Identify the killer correctly → the killer is executed. Guess wrong → everyone dies except the real killer. No other exit. No appeals.<br><br>
+The games follow surviving students as they investigate murders, argue their way through class trials, and hunt for the mastermind controlling everything from the shadows.
+</div></div>
+<div class="card"><div class="ct-lbl">the series</div><div class="card-text">
+Three mainline entries: <strong>Trigger Happy Havoc</strong> (2010), <strong>Goodbye Despair</strong> (2012), and <strong>Killing Harmony</strong> (2017). They share characters, mythology, and a central war between <span class="r">Hope and Despair</span>. Each game stands alone — but the full picture only arrives with all three.
+</div></div>`
+},
+
+// ── 1  DR1 SETUP ──
+{ lbl:"GAME 1", game:{n:"01",t:"TRIGGER HAPPY HAVOC"},
+left:`<div class="sh">Hope's Peak<br><span class="hl">Academy</span></div>
+<div class="sm">SETTING · CAST · SETUP</div>
+<div class="cg">
+  <div class="ct survivor">Makoto Naegi</div>
+  <div class="ct survivor">Kyoko Kirigiri</div>
+  <div class="ct survivor">Byakuya Togami</div>
+  <div class="ct survivor">Aoi Asahina</div>
+  <div class="ct survivor">Yasuhiro Hagakure</div>
+  <div class="ct survivor">Toko Fukawa</div>
+  <div class="ct victim">Sayaka Maizono</div>
+  <div class="ct executed">Leon Kuwata</div>
+  <div class="ct victim">Chihiro Fujisaki</div>
+  <div class="ct executed">Mondo Owada</div>
+  <div class="ct victim">Kiyotaka Ishimaru</div>
+  <div class="ct victim">Hifumi Yamada</div>
+  <div class="ct executed">Celestia Ludenberg</div>
+  <div class="ct victim">Sakura Ogami</div>
+  <div class="ct victim">Mukuro Ikusaba</div>
+</div>`,
+right:`
+<div class="card"><div class="ct-lbl">the school</div><div class="card-text">
+<strong>Hope's Peak Academy</strong> accepts only the world's finest young talents — athletes, hackers, artists, gang leaders. <strong>Makoto Naegi</strong> is the exception: the "Ultimate Lucky Student," chosen by lottery. He meets fourteen other Ultimate students on his first day. None of them leave.
+</div></div>
+<div class="card"><div class="ct-lbl">the trap</div><div class="card-text">
+A remote-controlled bear named <span class="r">Monokuma</span> declares himself principal and seals the school. The rules: live here forever — or kill someone and survive the class trial. No other way out. If the class correctly names the killer, the killer is executed; if they get it wrong, everyone else dies and the killer escapes.
+</div></div>
+<div class="card"><div class="ct-lbl">the detective</div><div class="card-text">
+<strong>Kyoko Kirigiri</strong> is a distant, sharp-eyed girl who hides her talent entirely. She becomes Makoto's most critical ally — applying precise deductive reasoning to each case while keeping her own past tightly guarded.
+</div></div>`
+},
+
+// ── 2  DR1 MURDERS ──
+{ lbl:"GAME 1", game:{n:"01",t:"TRIGGER HAPPY HAVOC"},
+left:`<div class="sh">The <span class="hl">Murders</span></div>
+<div class="sm">CLASS TRIALS 1–5</div>`,
+right:`
+<div class="ml">
+  <div class="ml-title">▸ CASE FILE — TRIGGER HAPPY HAVOC</div>
+  <div class="me">
+    <span class="vn">Sayaka Maizono</span><span class="arr">→</span><span class="kn">Leon Kuwata</span>
+    <span class="me-note">Sayaka tried to murder Leon and frame Makoto; Leon turned the attack around on her</span>
+  </div>
+  <div class="me">
+    <span class="vn">Mukuro Ikusaba (disguised as Junko)</span><span class="arr">→</span><span class="kn">Monokuma</span>
+    <span class="me-note">The early "Junko" death was actually Mukuro Ikusaba — Junko's twin — impersonating her. Killed by Monokuma after attacking him. The real Junko was alive and controlling events the entire time.</span>
+  </div>
+  <div class="me">
+    <span class="vn">Chihiro Fujisaki</span><span class="arr">→</span><span class="kn">Mondo Owada</span>
+    <span class="me-note">Jealous rage — Chihiro's quiet strength exposed a weakness Mondo couldn't forgive in himself</span>
+  </div>
+  <div class="me">
+    <span class="vn">Kiyotaka Ishimaru &amp; Hifumi Yamada</span><span class="arr">→</span><span class="kn">Celestia Ludenberg</span>
+    <span class="me-note">Celeste manipulated Hifumi into killing Ishimaru, then silenced Hifumi herself</span>
+  </div>
+  <div class="me">
+    <span class="vn">Sakura Ogami</span><span class="arr">→</span><span class="kn">Herself</span>
+    <span class="me-note">Took her own life after being exposed as Monokuma's informant — a sacrifice to protect her friends from tearing each other apart</span>
+  </div>
+</div>
+<div class="card murder"><div class="ct-lbl">alter ego</div><div class="card-text">
+Before dying, <strong>Chihiro</strong> had secretly created an AI called <span class="r">Alter Ego</span> — a digital copy of themselves, running hidden on a laptop. It quietly assists survivors in the background, and becomes critical at the very end of the game.
+</div></div>`
+},
+
+// ── 3  DR1 ENDING ──
+{ lbl:"GAME 1", game:{n:"01",t:"TRIGGER HAPPY HAVOC"},
+left:`<div class="sh">The Real<br><span class="hl">Junko Enoshima</span></div>
+<div class="sm">THE MASTERMIND REVEALED</div>`,
+right:`
+<div class="twist">⚠ MAJOR SPOILERS ⚠</div>
+<div class="card reveal"><div class="ct-lbl">the twin</div><div class="card-text">
+The <span class="r">"Junko"</span> killed early in the game was never Junko. It was her <strong>fraternal twin sister Mukuro Ikusaba</strong> — a mercenary — impersonating her on Junko's orders. Junko then used Mukuro's corpse as a planted "murder victim" later in the game to falsely implicate Kyoko Kirigiri. The real Junko was pulling every string from behind Monokuma.
+</div></div>
+<div class="card reveal"><div class="ct-lbl">the memory wipe</div><div class="card-text">
+All 15 students had spent <strong>two full years</strong> inside Hope's Peak already. During a global crisis, the headmaster sealed the school with the students' consent. <strong>Junko killed the headmaster</strong>, seized control, and erased everyone's memories of those two years — friendships, rivalries, everything. They had known each other deeply before any of this.
+</div></div>
+<div class="card verdict"><div class="ct-lbl">the ending</div><div class="card-text">
+Makoto is convicted of the final murder but is saved at the last moment by <strong>Alter Ego</strong>, Chihiro's AI. Together, the survivors expose Junko as the true mastermind. Cornered and exposed, she <strong>executes herself</strong> — ecstatic at the despair of losing. The six survivors (Makoto, Kyoko, Byakuya, Aoi, Yasuhiro, and Toko / Genocide Jack) walk out into an unknown world.
+</div></div>`
+},
+
+// ── 4  DR2 SETUP ──
+{ lbl:"GAME 2", game:{n:"02",t:"GOODBYE DESPAIR"},
+left:`<div class="sh">Jabberwock<br><span class="hl">Island</span></div>
+<div class="sm">NEW CAST · NEW LOCATION · NEW THREAT</div>
+<div class="cg">
+  <div class="ct survivor">Hajime Hinata</div>
+  <div class="ct survivor">Fuyuhiko Kuzuryu</div>
+  <div class="ct survivor">Sonia Nevermind</div>
+  <div class="ct survivor">Kazuichi Soda</div>
+  <div class="ct survivor">Akane Owari</div>
+  <div class="ct victim">Chiaki Nanami (AI)</div>
+  <div class="ct executed">Nagito Komaeda</div>
+  <div class="ct victim">Byakuya (Impostor)</div>
+  <div class="ct victim">Mahiru Koizumi</div>
+  <div class="ct victim">Hiyoko Saionji</div>
+  <div class="ct victim">Ibuki Mioda</div>
+  <div class="ct executed">Peko Pekoyama</div>
+  <div class="ct executed">Mikan Tsumiki</div>
+  <div class="ct executed">Nekomaru Nidai</div>
+  <div class="ct executed">Teruteru Hanamura</div>
+  <div class="ct executed">Gundham Tanaka</div>
+</div>`,
+right:`
+<div class="card"><div class="ct-lbl">new protagonist</div><div class="card-text">
+<strong>Hajime Hinata</strong> is amnesiac — he has no idea what his talent is. He wakes on a tropical island framed as a "field trip," overseen by a rabbit mascot called <strong>Usami</strong>. Monokuma hijacks the situation, subdues Usami (renaming her <strong>Monomi</strong>), and announces the killing game. Nobody leaves without killing and surviving a trial.
+</div></div>
+<div class="card"><div class="ct-lbl">nagito komaeda</div><div class="card-text">
+Also a "Lucky Student" — but where Makoto's luck was mundane and warm, <strong>Nagito's</strong> is extreme and cyclical: catastrophic misfortune always followed by miraculous fortune. He treats talent as sacred and views himself as worthless without it. His fanatical relationship with Hope makes him the most dangerous and unpredictable person in the game.
+</div></div>
+<div class="card"><div class="ct-lbl">chiaki nanami</div><div class="card-text">
+A quiet, perpetually sleepy gamer who seems entirely unremarkable — <strong>Chiaki</strong> keeps the group grounded, calm, and together. Her true nature isn't revealed until the game's finale.
+</div></div>`
+},
+
+// ── 5  DR2 MURDERS ──
+{ lbl:"GAME 2", game:{n:"02",t:"GOODBYE DESPAIR"},
+left:`<div class="sh">The Tragedy &amp;<br><span class="hl">Ultimate Despair</span></div>
+<div class="sm">THE WORLD OUTSIDE</div>`,
+right:`
+<div class="ml">
+  <div class="ml-title">▸ CASE FILE — GOODBYE DESPAIR</div>
+  <div class="me">
+    <span class="vn">Byakuya Togami (Impostor)</span><span class="arr">→</span><span class="kn">Teruteru Hanamura</span>
+    <span class="me-note">Teruteru was trying to stop Nagito from committing the first murder — and accidentally killed the Impostor instead</span>
+  </div>
+  <div class="me">
+    <span class="vn">Mahiru Koizumi</span><span class="arr">→</span><span class="kn">Peko Pekoyama</span>
+    <span class="me-note">Peko acted as Fuyuhiko's loyal weapon, to stop Mahiru from exposing a death connected to Fuyuhiko's sister</span>
+  </div>
+  <div class="me">
+    <span class="vn">Ibuki Mioda &amp; Hiyoko Saionji</span><span class="arr">→</span><span class="kn">Mikan Tsumiki</span>
+    <span class="me-note">Mikan was infected by the Despair Disease, a pathogen that inverted her personality from meek to malevolent</span>
+  </div>
+  <div class="me">
+    <span class="vn">Nekomaru Nidai</span><span class="arr">→</span><span class="kn">Gundham Tanaka</span>
+    <span class="me-note">An honourable duel — one of them had to die so the others wouldn't starve. Both knew it.</span>
+  </div>
+  <div class="me">
+    <span class="vn">Nagito Komaeda</span><span class="arr">→</span><span class="kn">Chiaki Nanami (AI)</span>
+    <span class="me-note">Nagito engineered his own death through a convoluted scheme, positioning Chiaki as the unwitting killer. She willingly exposed herself to save the others — and was executed alongside Monomi.</span>
+  </div>
+</div>
+<div class="card reveal"><div class="ct-lbl">the big reveal</div><div class="card-text">
+The island's students are the <span class="r">Ultimate Despair</span> — real-world terrorists who followed Junko and helped cause <strong>The Tragedy</strong>, a total global societal collapse. The Future Foundation — which now includes Makoto Naegi — captured them and placed them in a <strong>virtual reality rehabilitation program</strong> with their memories erased.
+</div></div>`
+},
+
+// ── 6  DR2 ENDING ──
+{ lbl:"GAME 2", game:{n:"02",t:"GOODBYE DESPAIR"},
+left:`<div class="sh">Izuru<br><span class="hl">Kamukura</span></div>
+<div class="sm">HAJIME'S TRUE IDENTITY</div>`,
+right:`
+<div class="card reveal"><div class="ct-lbl">hajime's double secret</div><div class="card-text">
+Nagito reveals that Hajime was never an Ultimate — he was a <strong>Reserve Course student</strong>, someone who simply paid to attend Hope's Peak with no innate talent. Then Alter Ego Junko reveals deeper truth: Hajime was experimented on by the school to become <span class="r">Izuru Kamukura</span>, the "Ultimate Hope," gifted with every talent. He led Ultimate Despair. Everything was stripped from him — including his memory of any of it.
+</div></div>
+<div class="card reveal"><div class="ct-lbl">alter ego junko</div><div class="card-text">
+An AI copy of Junko has hijacked the VR program. Her plan: when students "graduate," she downloads herself into their real, comatose bodies — and spreads to every human on Earth. <strong>Makoto Naegi</strong> enters the simulation to warn Hajime. <strong>Kyoko and the real Byakuya Togami</strong> also enter to provide enough participants to activate the shutdown sequence.
+</div></div>
+<div class="card verdict"><div class="ct-lbl">the reset</div><div class="card-text">
+With encouragement from Chiaki's digital essence, Hajime refuses graduation and persuades the survivors to reset the system instead. The reset revives <strong>Usami</strong>, who uses her restored power to <strong>delete Alter Ego Junko</strong> entirely. The digital world shuts down. Everyone wakes in the real world — alive, and resolving to face the future as who they choose to be.
+</div></div>`
+},
+
+// ── 7  DRV3 SETUP ──
+{ lbl:"GAME 3", game:{n:"V3",t:"KILLING HARMONY"},
+left:`<div class="sh">Ultimate Academy<br><span class="hl">for Gifted Juveniles</span></div>
+<div class="sm">A NEW KILLING GAME — OR IS IT?</div>
+<div class="cg">
+  <div class="ct victim">Kaede Akamatsu ★</div>
+  <div class="ct survivor">Shuichi Saihara</div>
+  <div class="ct survivor">Maki Harukawa</div>
+  <div class="ct survivor">Himiko Yumeno</div>
+  <div class="ct culprit">Tsumugi Shirogane</div>
+  <div class="ct victim">Rantaro Amami</div>
+  <div class="ct victim">Ryoma Hoshi</div>
+  <div class="ct victim">Angie Yonaga</div>
+  <div class="ct victim">Tenko Chabashira</div>
+  <div class="ct executed">Korekiyo Shinguji</div>
+  <div class="ct victim">Kokichi Oma</div>
+  <div class="ct executed">Kaito Momota</div>
+  <div class="ct executed">Kirumi Tojo</div>
+  <div class="ct executed">Gonta Gokuhara</div>
+  <div class="ct victim">K1-B0 (Keebo)</div>
+</div>`,
+right:`
+<div class="card"><div class="ct-lbl">two protagonists</div><div class="card-text">
+<strong>Kaede Akamatsu</strong> (Ultimate Pianist) wakes inside yet another killing game at Ultimate Academy for Gifted Juveniles. Despite being advertised as the sole lead, Kaede is a <span class="r">false protagonist</span> — she is only playable for the first chapter. <strong>Shuichi Saihara</strong> (Ultimate Detective) carries the rest of the game: quiet, uncertain of his own worth, but increasingly driven.
+</div></div>
+<div class="card"><div class="ct-lbl">flashback light</div><div class="card-text">
+Before the game begins, students are hit by the <strong>Monokubs</strong> with a "Flashback Light" — a memory-altering device like a neuralyzer. They wake with Ultimate talents they didn't have before. Something has already been done to their minds before a single murder occurs.
+</div></div>
+<div class="card murder"><div class="ct-lbl">early twist</div><div class="card-text">
+Kaede and Shuichi set a trap to <strong>kill the mastermind</strong> before the killing game fully begins — but the trap hits the wrong target, killing the amnesiac <span class="r">Rantaro Amami</span>. At the class trial, Kaede encourages Shuichi to expose her as the culprit and accepts her execution. Shuichi must continue without her. <em style="color:var(--dimmed);font-size:12px">(★ false protagonist)</em>
+</div></div>`
+},
+
+// ── 8  DRV3 MURDERS ──
+{ lbl:"GAME 3", game:{n:"V3",t:"KILLING HARMONY"},
+left:`<div class="sh">Lies, Schemes &amp;<br><span class="hl">Sacrifice</span></div>
+<div class="sm">CLASS TRIALS 2–5</div>`,
+right:`
+<div class="ml">
+  <div class="ml-title">▸ CASE FILE — KILLING HARMONY</div>
+  <div class="me">
+    <span class="vn">Ryoma Hoshi</span><span class="arr">→</span><span class="kn">Kirumi Tojo</span>
+    <span class="me-note">Kirumi wanted to escape the killing game and save Japan from political collapse. Ryoma, having nothing left to live for, willingly allowed himself to be killed.</span>
+  </div>
+  <div class="me">
+    <span class="vn">Angie Yonaga &amp; Tenko Chabashira</span><span class="arr">→</span><span class="kn">Korekiyo Shinguji</span>
+    <span class="me-note">Korekiyo believed killing women sent "friends" to his dead sister in the afterlife</span>
+  </div>
+  <div class="me">
+    <span class="vn">Miu Iruma</span><span class="arr">→</span><span class="kn">Gonta Gokuhara</span>
+    <span class="me-note">Gonta was manipulated by Kokichi into believing Miu was a threat to everyone's survival</span>
+  </div>
+  <div class="me">
+    <span class="vn">Kokichi Oma</span><span class="arr">→</span><span class="kn">Kaito Momota</span>
+    <span class="me-note">A deliberately unsolvable murder — Kokichi and Kaito conspired so that even Monokuma couldn't determine who the victim was, to break the killing game from within</span>
+  </div>
+</div>
+<div class="card"><div class="ct-lbl">kokichi's gambit</div><div class="card-text">
+<strong>Kokichi Oma</strong>, the Ultimate Supreme Leader, is a compulsive liar who publicly declares himself the mastermind — but isn't. In secret, he and <strong>Kaito</strong> engineer a murder case so deliberately obscured that Monokuma is paralysed. Kokichi's goal: collapse the killing game entirely.
+</div></div>
+<div class="card murder"><div class="ct-lbl">kaito's sacrifice</div><div class="card-text">
+When Shuichi solves the case, <strong>Kaito</strong> is the killer. He is executed — but was already dying from a disease contracted inside the academy. <span class="r">His execution sends him to space</span>, fulfilling his lifelong dream. He dies on his own terms, from the illness, before Monokuma can finish the job. Monokuma is furious.
+</div></div>`
+},
+
+// ── 9  DRV3 ENDING ──
+{ lbl:"GAME 3", game:{n:"V3",t:"KILLING HARMONY"},
+left:`<div class="sh">The Final<br><span class="hl">Lie</span></div>
+<div class="sm">THE MOST CONTROVERSIAL ENDING IN THE SERIES</div>`,
+right:`
+<div class="twist">⚠ EVERYTHING YOU KNOW IS A LIE ⚠</div>
+<div class="card reveal"><div class="ct-lbl">tsumugi's confession</div><div class="card-text">
+The mastermind is <span class="r">Tsumugi Shirogane</span> — the Ultimate Cosplayer, who killed Rantaro and framed Kaede. After Shuichi exposes her and forces a retrial, Tsumugi confesses — then delivers the full scope of the twist: <strong>Danganronpa is a TV show</strong>. This is Season 53. The audience is watching right now.
+</div></div>
+<div class="card reveal"><div class="ct-lbl">the meta-twist</div><div class="card-text">
+All the students (except the robot <strong>K1-B0 / Keebo</strong>) were ordinary people who willingly erased their own memories and personalities in exchange for fame, fortune, or the thrill. The memories of Hope's Peak, Makoto Naegi, and a world destroyed by meteors were all <span class="r">props and brainwashing</span>. K1-B0 is literally the audience's camera — he transmits the show, and hears the viewers' opinions through an antenna. Tsumugi's goal is for Danganronpa to <strong>continue</strong>, not end.
+</div></div>
+<div class="card verdict"><div class="ct-lbl">shuichi's choice</div><div class="card-text">
+Any vote — guilty or not — keeps the show running. Shuichi persuades everyone to <strong>abstain entirely</strong>. Everyone dies, but the game ends. All parties abstain, including Tsumugi and K1-B0 (whose antenna indicates the audience has finally given up). A defeated Tsumugi orders K1-B0 to destroy the academy — which he does, killing Tsumugi and Monokuma, before activating his own self-destruct. The three survivors — <strong>Shuichi, Maki, and Himiko Yumeno</strong> — depart for a real world they can't be certain exists as they remember it.
+</div></div>`
+},
+
+// ── 10  THEMES ──
+{ lbl:"THEMES", game:null,
+left:`<div class="sh">Hope vs.<br><span class="hl">Despair</span></div>
+<div class="sm">THE HEART OF THE SERIES</div>`,
+right:`
+<div class="card"><div class="ct-lbl">the eternal conflict</div><div class="card-text">
+Every Danganronpa game stages the same battle: <strong>Hope</strong> — the belief that people and the future are worth fighting for — against <span class="r">Despair</span> — an addictive nihilism that feeds on its own emptiness. Junko doesn't want power or victory. She wants the sensation of everything falling apart, especially herself.
+</div></div>
+<div class="card"><div class="ct-lbl">junko's legacy</div><div class="card-text">
+<strong>Junko Enoshima</strong> is the true antagonist across all three games, even in death. She engineered a global collapse, built an AI copy of herself to extend her reach, and became the cultural bedrock of a franchise of lethal reality television. Her ideology spreads because it offers something real: the freedom to stop pretending the world is fine.
+</div></div>
+<div class="card"><div class="ct-lbl">V3's question</div><div class="card-text">
+Killing Harmony asks the sharpest question of the series: <span class="r">does fiction cause harm?</span> If an audience demands suffering for entertainment, and people willingly provide it — who bears responsibility? The game refuses a clean answer. It ends with three people walking into an uncertain world, and the viewer left to reckon with what they just watched.
+</div></div>
+<div class="card verdict"><div class="ct-lbl">final verdict</div><div class="card-text">
+Danganronpa is, at its core, about choosing to keep living in spite of everything — not because the world is safe or fair or even real, but because the alternative is to <span class="r">become Junko</span>.
+</div></div>`
+}
+
+]; // end SLIDES
+
+// ═══════════════════════════════════════
+//  DEVICE LOGIC
+// ═══════════════════════════════════════
+let selMode = null, ovMode = null;
+
+function autoDetect() {
+  const w = window.innerWidth, t = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  if (w < 600) return 'phone';
+  if (w < 1024 || (t && w < 1200)) return 'tablet';
+  return 'desktop';
+}
+
+function goToDev() {
+  const ts = document.getElementById('ts'); ts.style.opacity = '0';
+  setTimeout(() => {
+    ts.style.display = 'none';
+    const d = document.getElementById('ds'); d.style.display = 'flex';
+    const sug = autoDetect();
+    d.querySelectorAll('.ds-card').forEach(c => {
+      if (c.dataset.mode === sug) { c.classList.add('sel'); selMode = sug; document.getElementById('ds-ok').classList.add('ready'); }
+    });
+    document.getElementById('ds-auto').textContent = `● Auto-detected: ${sug.toUpperCase()} — tap to change`;
+  }, 750);
+}
+
+function pickDev(el, ov = false) {
+  el.closest('#ds,#dov').querySelectorAll('.ds-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  if (ov) {
+    ovMode = el.dataset.mode;
+    const b = document.getElementById('dov-ok'); b.classList.add('ready'); b.style.opacity = '1'; b.style.pointerEvents = 'all';
+  } else {
+    selMode = el.dataset.mode;
+    document.getElementById('ds-ok').classList.add('ready');
+  }
+}
+
+function applyMode(m) {
+  document.body.classList.remove('mode-desktop','mode-tablet','mode-phone');
+  document.body.classList.add('mode-' + m);
+  document.getElementById('cursor').style.display = m === 'desktop' ? 'block' : 'none';
+}
+
+function confirmDev() {
+  if (!selMode) return;
+  const d = document.getElementById('ds'); d.style.opacity = '0';
+  setTimeout(() => {
+    d.style.display = 'none'; applyMode(selMode);
+    document.getElementById('app').style.display = 'flex';
+    buildSlides(); buildDots(); showSlide(0);
+    if (selMode !== 'desktop') setupSwipe();
+  }, 480);
+}
+
+function openOv() {
+  ovMode = null; const ov = document.getElementById('dov'); ov.style.display = 'flex';
+  ov.querySelectorAll('.ds-card').forEach(c => c.classList.remove('sel'));
+  const b = document.getElementById('dov-ok'); b.style.opacity = '0.28'; b.style.pointerEvents = 'none';
+}
+function applyOv() { if (!ovMode) return; closeOv(); applyMode(ovMode); }
+function closeOv() { document.getElementById('dov').style.display = 'none'; }
+
+// ═══════════════════════════════════════
+//  SLIDE LOGIC
+// ═══════════════════════════════════════
+let cur = 0;
+
+function buildSlides() {
+  const c = document.getElementById('sc');
+  document.getElementById('tot-n').textContent = SLIDES.length;
+  SLIDES.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'slide'; d.id = `sl-${i}`;
+    let lh = `<div class="lp">`;
+    if (s.game) lh += `<div class="game-badge"><div class="gbn">${s.game.n}</div><div class="gbt">DANGANRONPA<br>${s.game.t}</div></div>`;
+    lh += s.left + `</div>`;
+    d.innerHTML = lh + `<div class="rp"><div class="ns">${s.right}</div></div>`;
+    c.appendChild(d);
+  });
+}
+
+function buildDots() {
+  const t = document.getElementById('dots');
+  SLIDES.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot'; d.id = `dot-${i}`; d.title = s.lbl;
+    d.onclick = () => showSlide(i); t.appendChild(d);
+  });
+}
+
+function showSlide(n) {
+  document.getElementById(`sl-${cur}`)?.classList.remove('active');
+  cur = n;
+  const el = document.getElementById(`sl-${cur}`); el.classList.add('active');
+  el.querySelector('.ns')?.scrollTo(0, 0);
+  el.querySelector('.lp')?.scrollTo(0, 0);
+  SLIDES.forEach((_, i) => {
+    const d = document.getElementById(`dot-${i}`); if (!d) return;
+    d.className = 'dot';
+    if (i === cur) d.classList.add('active');
+    else if (i < cur) d.classList.add('done');
+  });
+  document.getElementById('prog').style.width = (((cur + 1) / SLIDES.length) * 100) + '%';
+  document.getElementById('prog-lbl').textContent = SLIDES[cur].lbl;
+  document.getElementById('cur-n').textContent = cur + 1;
+  document.getElementById('prev-btn').disabled = cur === 0;
+  const nb = document.getElementById('next-btn');
+  if (cur === SLIDES.length - 1) { nb.innerHTML = '▶ RESTART'; nb.onclick = () => showSlide(0); }
+  else { nb.innerHTML = '<span class="lb">NEXT </span>▶'; nb.onclick = () => nav(1); }
+}
+
+function nav(d) { const n = Math.max(0, Math.min(SLIDES.length - 1, cur + d)); if (n !== cur) showSlide(n); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') nav(1);
+  if (e.key === 'ArrowLeft') nav(-1);
+  if (e.key === 'Escape') closeOv();
+});
+
+const curEl = document.getElementById('cursor');
+document.addEventListener('mousemove', e => { curEl.style.left = e.clientX + 'px'; curEl.style.top = e.clientY + 'px'; });
+document.addEventListener('mousedown', () => curEl.classList.add('clicked'));
+document.addEventListener('mouseup', () => curEl.classList.remove('clicked'));
+
+function setupSwipe() {
+  let sx = 0, sy = 0;
+  const area = document.getElementById('sc');
+  area.addEventListener('touchstart', e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+  area.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) nav(dx < 0 ? 1 : -1);
+  }, { passive: true });
+}
+</script>
+</body>
+</html>
